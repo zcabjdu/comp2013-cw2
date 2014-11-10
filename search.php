@@ -1,6 +1,6 @@
 <html>
 <head>
-<Title>Registration Form</Title>
+<Title>Search the database</Title>
 <style type="text/css">
     body { background-color: #fff; border-top: solid 10px #000;
         color: #333; font-size: .85em; margin: 20; padding: 20;
@@ -16,14 +16,14 @@
 </style>
 </head>
 <body>
-<h1>Register here!</h1>
-<a href="search.php"><h3>or click here to search</h3></a>
-<p>Fill in your name and email address, then click <strong>Submit</strong> to register.</p>
-<form method="post" action="index.php" enctype="multipart/form-data" >
+<h1>Search here!</h1>
+<a href="index.php"><h3>or click here to register</h3></a>
+<p>Fill in any of the details of the person you are looking for, then click <strong>Search</strong> to search the database.</p>
+<form method="post" action="search.php" enctype="multipart/form-data" >
       Name  <input type="text" name="name" id="name"/></br>
       Email <input type="text" name="email" id="email"/></br>
       Company Name <input type="text" name="company" id="company"/></br>
-      <input type="submit" name="submit" value="Submit" />
+      <input type="submit" name="search" value="Search" />
 </form>
 <?php
     // DB connection info
@@ -45,24 +45,16 @@
         $name = $_POST['name'];
         $email = $_POST['email'];
         $company = $_POST['company'];
-        $date = gmdate("Y-m-d");
-        // Insert data
-        $sql_insert = "INSERT INTO registration_tbl (name, email, company, date) 
-                   VALUES (?,?,?,?)";
-        $stmt = $conn->prepare($sql_insert);
-        $stmt->bindValue(1, $name);
-        $stmt->bindValue(2, $email);
-        $stmt->bindValue(3, $company);
-        $stmt->bindValue(4, $date);
-        $stmt->execute();
     }
     catch(Exception $e) {
         die(var_dump($e));
     }
-    echo "<h3>Your're registered!</h3>";
     }
     // Retrieve data
-    $sql_select = "SELECT * FROM registration_tbl";
+    $sql_select = "SELECT * FROM registration_tbl 
+                   WHERE (name LIKE '%{$name}%' OR '$name' = '')
+                   AND (email LIKE '%{$email}%' OR '$email' = '')
+                   AND (company LIKE '%{$company}%' OR '$company' = '')";
     $stmt = $conn->query($sql_select);
     $registrants = $stmt->fetchAll(); 
     if(count($registrants) > 0) {
@@ -80,7 +72,7 @@
         }
         echo "</table>";
     } else {
-        echo "<h3>No one is currently registered.</h3>";
+        echo "<h3>No one with those details is currently registered.</h3>";
     }
 ?>
 </body>
